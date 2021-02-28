@@ -1,0 +1,274 @@
+grab starter files from Wes's Gatsby course.
+
+Location : 
+/Users/chrisyoung/Documents/gatsby-projects/plant-shop
+
+
+Next : 
+Install dependencies into gatsby and sanity directories 
+
+In gatsby > sudo npm install
+In sanity > sudo npm install 
+
+note : if you see in CLI this > gyp: No Xcode or CLT version detected! > then run this > xcode-select --install > if you still gets errors maybe look into the node version : slack said use Node V.10 two years ago.  What should we be using now? 
+
+note : gatsby-cli & the sanity-cli should already be installed on your machine so no need to run sudo npm install gatsby-cli @sanity/cli -g but you can check with gatsby --version & sanity --version.
+
+
+Next, set up a Sanity Studio : 
+
+run > sanity init --reconfigure (because we are using Wes's set up and not a vanilla set up) 
+name the sanity project like module-5 
+keep dataset name production
+? Use the default dataset configuration? Yes
+run > sanity start
+login with GitHub
+
+
+
+Note : 
+Project Name : plant-shop
+Default dataset configuration : yes
+Dataset name : production
+
+sanity commands : 
+▪ sanity docs to open the documentation in a browser
+▪ sanity manage to open the project settings in a browser
+▪ sanity help to explore the CLI manual
+▪ sanity start to run your studio
+
+
+Next : 
+start sanity with sanity start
+start gatsby with npm start
+
+side note : what files might you need?  Like Wes's .gitignore.
+
+Next, in the root of the plant-store directory, opened vs code and added wes's .gitignore
+
+Used OneNote "Add a New Repo to..." to set up repo - current GitHub directions are wack.
+
+Next, we should create a Layout.js component that will wrap all it's children in a Nav.js & Footer.js component.  Nav & Footer should be wrapped in any Global, Typography, Site Border, Content styles. 
+
+Next, building the Nav, I wired up the Nav to be rendered by Layout and Layout to be rendered by index.js Home Page.  This is just to check that our code works as we write more code. This will be wired up differently later...
+
+Next, for the Nav elements, we have : 
+
+Logo : Home Page link
+New : think of it as slices of pizza available
+PlantWranglers : think of as slicemasters
+Houseplants : general shopping area where all the plants will be shown
+HowTo : a PlantWrangler tells you how to grow a particular house plant.
+Cart : your current items and access check out from here.
+
+
+
+As an aside : For your favicon.ico, go to https://favicon.io/favicon-converter/ and download zip files.  I used just the favicon.ico and it worked.  Not 100% sure what the favicon.svg is doing. ***OK*** For this favicon.ico, if the app is restarted ffrom th CLI it goes away.  So what is the connection here with the favicon.svg then or is there?  
+
+Next, back to the Nav : 
+Created the links.  They show up in the page.  How should we style them?  Going to slap on Wes's style component... 
+
+Adding GlobalStyles.js & Typography.js to Layout.js
+
+Note : our Foody Background on Slick's App is bg.svg.  This is on GlobalStyles.js.  This has been commented out.
+
+Note : Font we are using in Typography.js : 
+
+font-family: Helvetica Neue;
+
+
+Note : SiteBorderStyles that lives in Layout.js is, yes, our border styling.  See slick's as example.
+
+Next, with Nav.js mostly complete now we work on the footer : 
+
+Just copied from Slick's code. Done.
+
+Next, will scaffold out the pages files and use wrapPageElement() in gatsby-browser.js & gatsby-ssr.js : 
+Basically, created a page for each Nav item. 
+
+
+Note : 
+
+Layout.js & children : somehow when you set up gatsby-browser.js & gatsby-ssr.js like we did I think all the children here are any pages aka elements.  Maybe.
+
+All pages even index.js will be wrapped in Layout.js.
+
+Next, we want to look at rendering plants in the shop.js but first we need to set up 
+our Sanity. So...
+
+ran sanity start
+added plantSchema.js
+wired plantSchema.js to schema.js
+added PriceInput.js functionality to plantSchema.js
+updated the name showing in Sanity in sanity.json
+
+
+Tip : for using react-icons >
+You go to react-icons site.  Search a keyword. Copy one of the icons.  For example : 
+We want MdLocalPizza.  We need to then add the "Md" from MdLocalPizza to 'react-icons/md' : 
+import { MdLocalPizza as icon } from 'react-icons/md';
+
+Next, couldn't figure out the .gz get data into sanity path so just manually entered the plants.
+
+Next, we want to pull the data from sanity to gatsby, so in gatsby-config.js : 
+
+... we just copy and update the code
+
+Next, we create a .env file to save our sensitive data : 
+
+put the .env at the root level of the gatsby directory
+comment out with # 
+grab a new token from the manage.sanity project site
+
+
+Next, deploy sanity graphql api, run in sanity: 
+
+sanity graphql deploy production
+
+
+GraphQL API deployed to:
+https://t2rsm0ki.api.sanity.io/v1/graphql/production/default
+
+
+Next, we restart gatsby and this should bring our sanity data over to our gatsby : 
+
+http://localhost:8000/___graphql : looking herw we see allSanityPlant, sanityPlant, etc... we really just created the plants ourselves.  Can run a query and get back our data so it is working indeed : 
+
+query MyQuery {
+  allSanityPlant {
+    nodes {
+      id
+      description
+      image {
+        asset {
+          assetId
+        }
+      }
+      name
+      price
+    }
+  }
+}
+
+
+Next, we make our plants query in shop.js - test that it works in graphiql
+
+Next, we make a component that just makes a list of plants & handles creating a single plant, so : 
+
+We create PlantList.js
+
+GOTCHA on PlantList.js: 
+
+
+// GOTCHA must be plant={plant} and not plants={plants}
+export default function PlantList({ plants }) {
+  return (
+    <>
+      {plants.map((plant) => (
+        <SinglePlant key={plant.id} plant={plant} />
+      ))}
+    </>
+  );
+}
+
+... but the note that on shop.js, we use the plural and it works (?) :
+
+export default function Shop({ data }) {
+  const plants = data.plants.nodes;
+
+  return (
+    <>
+      <PlantList plants={plants} />
+    </>
+  );
+}
+
+Next, we want to format the pricing shown on the shop page add formatMoney to the utils directory then bring it in the SinglePlant component on PlantList.js. 
+
+Note - see this for other currencies :
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat
+
+Note on the order process : user shops the shop page, adds items from this page to the cart, cart items are displayed on the cart page where the user can either go to checkout or continue shopping. 
+
+
+Next, add a button to each plant item on the shop page that when clicked will add the item to the cart : 
+
+First, for managing state at a high level to help persist the cart items we create OrderContext.js.  This gets wired up to wrapRootElement function on gatsby-browser.js & ssr.   wrapRootElement will wrap the root element in the OrderProvider/OrderContext.  Next, we need to pass state down to a custom hook as OrderContext.  
+
+Next, so, let's make that custom hook called usePlant.js : 
+
+We set up using state we get from OrderContext.js.
+We then wire usePlant.js up to pages/cart.js. 
+Looking at how we should return the cart items looks like we need another component to handle the displaying of the cart.  Maybe call it CartItems after PizzaOrder.
+
+Ok, this is getting hairy...
+
+Next, add a button on shop.js that will allow an item to be saved in state : 
+
+for unique keys, using a generator called uuidv4 : 
+
+install : nom i uuidv4
+
+implement : 
+import { uuid } from uuid4
+
+pass the key into an element with key={uuid()}
+
+added remove from cart functionality
+
+created calculateCartTotal.js and used this util function to add the total in the cart.
+
+Next, we now have the items in the cart from the shop page with a total. User hits the checkout button (which is really a link to the checkout page)
+and is taken to the checkout page.
+
+checkout page : user enters contact info, etc.  Cart items and total shown again here.  User reviews items once more and then submits the order. 
+
+Wrapped a button in a gatsby Link tag that takes the user to the checkout.  Also added a link to return to shopping.
+
+Next, add forms to fill out in the checkout page : 
+name
+address 
+email
+payment method? 
+
+Next, show the cart items and total.  
+
+
+Finally, submit the order, order is submitted as email and confirmation message shows on checkout page.
+
+
+Need to do SEO
+
+Add honeypot on checkout
+
+Created useForm custom hook.  This will hold the input values as state.  We use the input forms to create one single object that we will return at some point.
+
+
+Next, we need to gather all the order info being the order aka items in the cart, the total, the contact info, the honeypot.
+We'll so this in a variable named body inside a submitOrder() function that lives in the usePlant custom hook.  
+
+usePlant = usePizza
+
+shop.js : add items to OrderContext state >OrderContext.js : manage the cart items that the user added to cart >cart.js : use the state from OrderConext, display items in cart, display order total
+
+note that we are using 'const [cart] = useContext(OrderContext);' twice --> once in cart.js & once in checkout.js because we want to display the cart items in cart & checkout along with the order total in both places.
+
+Note : Why you will see code repeated in both cart.js and checkout.js >
+cart.js is intended to only show the cart items and total.  checkout.js intends to collect the users contact info while displaying the cart items in total to the user as a final check before they submit their order.
+
+
+checkpoint : checkout now has user input fields, shows total and order items.
+
+
+note : there is 'ems' text that mysteriously shows in the cart items displayed in the checkout
+
+Next, add a submit button and log the entire order object to verify data
+
+
+
+
+
+
+
+
+

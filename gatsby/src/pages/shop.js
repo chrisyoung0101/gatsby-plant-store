@@ -1,6 +1,5 @@
 import React from 'react';
 import { graphql } from 'gatsby';
-
 import PlantList from '../components/PlantList';
 // TODO add SEO
 
