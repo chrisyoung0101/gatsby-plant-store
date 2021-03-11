@@ -260,12 +260,61 @@ cart.js is intended to only show the cart items and total.  checkout.js intends 
 checkpoint : checkout now has user input fields, shows total and order items.
 
 
-note : there is 'ems' text that mysteriously shows in the cart items displayed in the checkout
-
-Next, add a submit button and log the entire order object to verify data
+note : there is 'ems' text that mysteriously shows in the cart items displayed in the checkout.  This is coming from the text in <legend>
 
 
+/////Understanding taking in user input data and how it is managed/////
+In a nutshell, useForm will take in and set all the user input data from the form inputs. useForm is holding the state
+of the form data which allows the inputs to maintain there current values until the form is submitted and the data taken
+elsewhere.
 
+
+We have our useForm custom hook which lives in it's own file.
+useForm is brought into checkout.js where we pass it the defaults.
+useForm has an updateValue function to update the values of each <input/>
+Looking at the code in useForm.js, you'll see that useForm creates an object from
+our user input data but in creating this object it can take in each value
+separately meaning name could be "Bob" while email is an empty string. then
+next time updateValue triggers, email value could be set on the object with 
+name "Bob". 
+For our <input/>(s), each <input/> has an onChange handler that triggers updateValue.
+updateValue updates the value of 'values', our object being created by useForm().
+Each <input /> has a value attribute which is set by the useForm() 'values'
+object. When the form is submitted, submitOrder on usePlant() is called.  usePlant() takes in values from our useForm() state
+and uses that data to create an order that can be submitted or whatever.
+
+
+Use a console.log(values, updateValue); on checkout.js just under where 
+useForm() is brought in.
+
+/////
+
+Next, add a submit button and console log the entire order object to verify data is being submitted. After that we will look into taking this 
+submitted order object to create an email that we send to both the business owner and the customer.
+
+So, the user submits the form, submitOrder is triggered.  submitOrder is a function on usePlant custom hook.  
+usePlant() takes in useForm() state as values.  One more time, user input data is held in state by useForm() as `values`.  `values` is passed to
+usePlant() where submitOrder does it's thing.
+
+next, in submitOrder, let's get the order aka cart and the total and add those to the body object.  Done.
+
+Next, we work on submitting the order via email : 
+
+So, on submitOrder(), with fetch, we send data to a serverless function when checkout is complete.
+
+Setting up the serverless function : 
+
+  note: why serverless functions? Basically we can do backend/server side work like sending and email this way.
+  note: the code that goes in the .js file of the serverless function is called a handler.
+
+    Set GATSBY_SERVERLESS_BASE=http://localhost:8888/.netlify/functions on the .env.
+    Create a netlify.toml (tells Netlify where the functions are living) on root.
+    Create functions/placeOrder/placeOrder.js.
+    Need to run `npm run netlify`
+    We now use localhost:8888.
+    Go to : localhost:8888/.netlify/functions/hello  (yes we created a test function and it works.  Result in the view.)
+
+  TODO : go create placeOrder.js
 
 
 

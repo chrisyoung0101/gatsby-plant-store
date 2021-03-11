@@ -38,12 +38,13 @@ export default function Cart({ data }) {
     plants,
   });
 
+  // TODO remove
   // log out for testing
-  Object.keys(cart).forEach(function (key) {
-    const val = cart[key];
-    console.log(val.plant.price);
-    // use val
-  });
+  // Object.keys(cart).forEach(function (key) {
+  //   const val = cart[key];
+  //   console.log(val.plant.price);
+  //   // use val
+  // });
 
   // cart.map((item) => console.log(item.name));
 

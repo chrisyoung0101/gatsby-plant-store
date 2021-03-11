@@ -9,7 +9,7 @@ export default function useForm(defaults) {
   function updateValue(e) {
     // check if user input is a number
     // "value" is destructured from e.target
-    // is this value check being used?
+    // is this value check being used? Not in slicks.  This is good because if the value us not a number it will force the value to be a number
     let { value } = e.target;
     if (e.target.type === 'number') {
       value = parseInt(value);

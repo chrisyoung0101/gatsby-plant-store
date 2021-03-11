@@ -18,13 +18,17 @@ export default function Checkout({ data }) {
   // bring in cart values so we can display the order total that is shown in cart.
   const [cart] = useContext(OrderContext);
 
+  // passing the defaults to usrForm()
   const { values, updateValue } = useForm({
     name: '',
     address: '',
     email: '',
   });
 
+  console.log(values, updateValue);
+
   // bring in functionality of usePlant() custom hook
+  // pass in plants, our queried data, and values, our user input data.
   const {
     // order,
     // addToOrder,
@@ -35,6 +39,7 @@ export default function Checkout({ data }) {
     submitOrder,
   } = usePlant({
     plants,
+    values,
   });
 
   return (
@@ -69,11 +74,10 @@ export default function Checkout({ data }) {
             onChange={updateValue}
           />
         </fieldset>
-        <fieldset>
-          <h3>Your Total is {formatMoney(calculateCartTotal(cart))}</h3>
-        </fieldset>
+
         <fieldset className="menu">
-          <legend>Cart Items</legend>
+          {/* TODO why does part of legend text show in the last item in the checkout cart? */}
+          <legend>Your Order</legend>
           {cart.map((item, index) => (
             <MenuItemStyles key={uuid()}>
               <Img
@@ -94,6 +98,10 @@ export default function Checkout({ data }) {
               </button>
             </MenuItemStyles>
           ))}
+        </fieldset>
+        <fieldset>
+          <h3>Your Total is {formatMoney(calculateCartTotal(cart))}</h3>
+          <button type="submit">Submit Order</button>
         </fieldset>
       </OrderStyles>
     </>
